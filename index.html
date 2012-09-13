@@ -7,7 +7,7 @@
       * { margin: 0; padding: 0; box-sizing: border-box; list-style: none; user-select: none; }
       html, body, article { height: 100% }
       #app { background-color: #eee; padding: 1em; }
-      button { padding: 0.5em; margin: 1em 0; -webkit-text-size-adjust: 100%; }
+      button { line-height: 2em; padding: 0 0.5em; margin: 1em 1em 1em 0; -webkit-text-size-adjust: 100%; }
       .items li { height: 3em; line-height: 3em; background-color: #ccc; margin-bottom: 0.5em; text-align: center; }
       .items li a { display: block; width: 100%; color: #666; text-decoration: none; }
       .items li a.active { background-color: #ddd; }
@@ -21,6 +21,7 @@
       <textarea class="logs"></textarea>
 
       <button class="add-item">Add new item</button>
+      <button class="clear-logs">Clear logs</button>
 
       <ul class="items">
         <li data-itemid="item-1"><a href="#item-1">Item 1</a></li>
