@@ -2,9 +2,12 @@
 
 (function () {
 
-    function log() {
-        if (window.console && console.log && console.log.apply) {
-            console.log.apply(console, ['[touchtest]:'].concat(_.toArray(arguments)));
+    function log(msg) {
+        if (window.console && console.log) {
+            console.log(msg);
+            var logs = $('#app .logs').get(0);
+            logs.innerHTML += '\n' + msg;
+            logs.scrollTop = logs.scrollHeight;
         }
     }
 
@@ -27,7 +30,7 @@
         onClick: function (e) {
             var $target = $(e.target);
             e.preventDefault();
-            log('click on link:', $target.attr('href'));
+            log('click on link: ' + $target.attr('href'));
             $target.addClass('active');
             window.setTimeout(function () {
                 $target.removeClass('active');
@@ -39,12 +42,12 @@
     });
 
     function start() {
-        log('start');
+        log('start app');
         window.location.hash = '';
         var app = new AppView({
             el: $('#app')
         });
     }
 
-    window.addEventListener('DOMContentLoaded', start);
+    $(start);
 }());
