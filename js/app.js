@@ -48,7 +48,7 @@
             var that = this;
             window.setTimeout(function () {
                 that.clickBusy = false;
-            }, 300);
+            }, 400);
         },
         onItemsClick: function (e) {
             e.preventDefault();
