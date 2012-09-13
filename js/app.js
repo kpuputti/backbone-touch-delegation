@@ -15,10 +15,11 @@
         events: {
             'click .items': 'onItemsClick',
             'click .add-item': 'addItem',
-            'click .items a': 'onClick'
+            'click .items a': 'onClick',
+            'click .clear-logs': 'clearLogs'
         },
         initialize: function () {
-            _.bindAll(this, 'addItem', 'onClick', 'onItemsClick');
+            _.bindAll(this, 'addItem', 'onClick', 'onItemsClick', 'clearLogs');
         },
         addItem: function (e) {
             log('add new item');
@@ -38,6 +39,9 @@
         },
         onItemsClick: function (e) {
             log('click on items list');
+        },
+        clearLogs: function (e) {
+            this.$el.find('.logs').html('');
         }
     });
 
