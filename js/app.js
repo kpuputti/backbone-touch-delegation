@@ -34,7 +34,7 @@
             var $target = $(e.target);
             if (this.clickBusy) {
                 log('click busy (' + $target.attr('href') + ')');
-                return false;
+                return;
             }
             this.clickBusy = true;
 
@@ -49,11 +49,10 @@
             window.setTimeout(function () {
                 that.clickBusy = false;
             }, 300);
-
-            return false;
         },
         onItemsClick: function (e) {
             e.preventDefault();
+            e.stopPropagation();
             if (this.clickBusy) {
                 log('click busy (items list)');
                 return false;
