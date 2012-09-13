@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Delegated touch events with Backbone</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; list-style: none; user-select: none; }
+      html, body, article { height: 100% }
+      #app { background-color: #eee; padding: 1em; }
+      button { padding: 0.5em; margin-bottom: 1em; }
+      .items li { height: 3em; line-height: 3em; background-color: #ccc; margin-bottom: 0.5em; text-align: center; }
+      .items li a { display: block; width: 100%; color: #666; text-decoration: none; }
+      .items li a.active { background-color: #ddd; }
+    </style>
+  </head>
+  <body>
+
+    <article id="app">
+
+      <button class="add-item">Add new item</button>
+
+      <ul class="items">
+        <li data-itemid="item-1"><a href="#item-1">Item 1</a></li>
+        <li data-itemid="item-2"><a href="#item-2">Item 2</a></li>
+        <li data-itemid="item-3"><a href="#item-3">Item 3</a></li>
+      </ul>
+
+    </article>
+
+    <!--<script src="js/zepto-1.0rc1.js"></script>-->
+    <script src="js/jquery-1.8.1.js"></script>
+    <script src="js/underscore-1.3.3.js"></script>
+    <script src="js/backbone-0.9.2.js"></script>
+    <!--<script src="js/backbone.touch.js"></script>-->
+    <script src="js/app.js"></script>
+  </body>
+</html>
