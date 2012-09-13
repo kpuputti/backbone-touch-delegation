@@ -18,6 +18,7 @@
             'click .items a': 'onClick',
             'click .clear-logs': 'clearLogs'
         },
+        clickBusy: false,
         initialize: function () {
             _.bindAll(this, 'addItem', 'onClick', 'onItemsClick', 'clearLogs');
         },
@@ -31,13 +32,30 @@
         onClick: function (e) {
             var $target = $(e.target);
             e.preventDefault();
+            if (this.clickBusy) {
+                log('click busy (' + $target.attr('href') + ')');
+                return;
+            }
+            this.clickBusy = true;
+
             log('click on link: ' + $target.attr('href'));
             $target.addClass('active');
+
             window.setTimeout(function () {
                 $target.removeClass('active');
             }, 100);
+
+            var that = this;
+            window.setTimeout(function () {
+                that.clickBusy = false;
+            }, 300);
         },
         onItemsClick: function (e) {
+            e.preventDefault();
+            if (this.clickBusy) {
+                log('click busy (items list)');
+                return;
+            }
             log('click on items list');
         },
         clearLogs: function (e) {
