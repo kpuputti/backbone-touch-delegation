@@ -30,11 +30,11 @@
             this.$el.find('.items').append($item);
         },
         onClick: function (e) {
-            var $target = $(e.target);
             e.preventDefault();
+            var $target = $(e.target);
             if (this.clickBusy) {
                 log('click busy (' + $target.attr('href') + ')');
-                return;
+                return false;
             }
             this.clickBusy = true;
 
@@ -49,14 +49,17 @@
             window.setTimeout(function () {
                 that.clickBusy = false;
             }, 300);
+
+            return false;
         },
         onItemsClick: function (e) {
             e.preventDefault();
             if (this.clickBusy) {
                 log('click busy (items list)');
-                return;
+                return false;
             }
             log('click on items list');
+            return false;
         },
         clearLogs: function (e) {
             this.$el.find('.logs').html('');
