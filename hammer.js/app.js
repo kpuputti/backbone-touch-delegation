@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var ItemListView = Backbone.View.extend({
 
         events: {
-            'click .add': 'addItem',
+            'tap .add': 'addItem',
             'tap li': 'onItemTap',
             'swiperight li': 'onSwipe',
             'tap .remove': 'removeItem'
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         addItem: function () {
             var item = document.createElement('li');
-            item.textContent = 'item ' + Date.now();
+            item.textContent = 'item ' + (Date.now().toString().substr(-3));
             this.el.querySelector('ul').appendChild(item);
         },
 
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var item = e.currentTarget;
             var removeButton = document.createElement('button');
             removeButton.className = 'remove';
-            removeButton.textContent = 'remove';
+            removeButton.textContent = 'X';
             item.appendChild(removeButton);
 
             window.setTimeout(function () {
