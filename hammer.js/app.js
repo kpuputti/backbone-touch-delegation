@@ -4,13 +4,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     'use strict';
 
+    var logEl = document.getElementById('log');
     function log(s) {
         console.log(s);
+        logEl.innerHTML += (Date.now() + ': ' + s + '\n');
+        logEl.scrollTop = logEl.scrollHeight;
     }
 
     var ItemListView = Backbone.View.extend({
 
         events: {
+            'click .add': 'onAddButtonClick',
+            'click li': 'onItemClick',
             'tap .add': 'addItem',
             'tap li': 'onItemTap',
             'swiperight li': 'onSwipe',
@@ -21,6 +26,15 @@ document.addEventListener('DOMContentLoaded', function () {
             this.$el.hammer();
         },
 
+        onAddButtonClick: function () {
+            log('click on add button');
+        },
+
+        onItemClick: function (e) {
+            var item = e.currentTarget;
+            log('click on item: ' + item.textContent);
+        },
+
         addItem: function () {
             log('add new item');
             var item = document.createElement('li');
@@ -29,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         onSwipe: function (e) {
-            log('swipe');
             var item = e.currentTarget;
+            log('swipe on item: ' + item.textContent);
             var removeButton = document.createElement('button');
             removeButton.className = 'remove';
             removeButton.textContent = 'X';
@@ -42,14 +56,14 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         onItemTap: function (e) {
-            log('tap');
             var item = e.currentTarget;
+            log('tap on item: ' + item.textContent);
             item.classList.toggle('selected');
         },
 
         removeItem: function (e) {
-            log('remove item');
             var item = e.currentTarget.parentNode;
+            log('remove item: ' + item.textContent);
             item.parentNode.removeChild(item);
         }
 
