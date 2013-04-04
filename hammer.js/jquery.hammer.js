@@ -1,4 +1,4 @@
-/*! Hammer.JS - v1.0.4 - 2013-03-23
+/*! Hammer.JS - v1.0.5dev - 2013-04-03
  * http://eightmedia.github.com/hammer.js
  *
  * Copyright (c) 2013 Jorik Tangelder <j.tangelder@gmail.com>;
@@ -40,6 +40,10 @@ Hammer.defaults = {
 // detect touchevents
 Hammer.HAS_POINTEREVENTS = navigator.pointerEnabled || navigator.msPointerEnabled;
 Hammer.HAS_TOUCHEVENTS = ('ontouchstart' in window);
+
+// dont use mouseevents on android, mobile safari and iemobile
+Hammer.NO_MOUSEEVENTS = Hammer.HAS_TOUCHEVENTS &&
+    navigator.userAgent.match(/mobile|tablet|ip(ad|hone|od)|android|iemobile/i);
 
 // eventtypes per touchevent (start, move, end)
 // are filled by Hammer.event.determineEventTypes on setup
@@ -342,10 +346,20 @@ Hammer.event = {
     determineEventTypes: function determineEventTypes() {
         // determine the eventtype we want to set
         var types;
+
+        // pointerEvents magic
         if(Hammer.HAS_POINTEREVENTS) {
             types = Hammer.PointerEvent.getEvents();
         }
-        // for non pointer events browsers
+        // on Android, iOS, blackberry, windows mobile we dont want any mouseevents
+        else if(Hammer.NO_MOUSEEVENTS) {
+            types = [
+                'touchstart',
+                'touchmove',
+                'touchend touchcancel'];
+        }
+        // for non pointer events browsers and mixed browsers,
+        // like chrome on windows8 touch laptop
         else {
             types = [
                 'touchstart mousedown',
@@ -1153,7 +1167,10 @@ Hammer.gestures.Drag = {
         drag_block_vertical     : false,
         // drag_lock_to_axis keeps the drag gesture on the axis that it started on,
         // It disallows vertical directions if the initial direction was horizontal, and vice versa.
-        drag_lock_to_axis       : false
+        drag_lock_to_axis       : false,
+        // drag lock only kicks in when distance > drag_lock_min_distance
+        // This way, locking occurs only when the distance has become large enough to reliably determine the direction
+        drag_lock_min_distance : 25
     },
     triggered: false,
     handler: function dragGesture(ev, inst) {
@@ -1188,8 +1205,11 @@ Hammer.gestures.Drag = {
                 Hammer.detection.current.name = this.name;
 
                 // lock drag to axis?
+                if(Hammer.detection.current.lastEvent.drag_locked_to_axis || (inst.options.drag_lock_to_axis && inst.options.drag_lock_min_distance<=ev.distance)) {
+                    ev.drag_locked_to_axis = true;
+                }
                 var last_direction = Hammer.detection.current.lastEvent.direction;
-                if(inst.options.drag_lock_to_axis && last_direction !== ev.direction) {
+                if(ev.drag_locked_to_axis && last_direction !== ev.direction) {
                     // keep direction on the axis that the drag gesture started on
                     if(Hammer.utils.isVertical(last_direction)) {
                         ev.direction = (ev.deltaY < 0) ? Hammer.DIRECTION_UP : Hammer.DIRECTION_DOWN;
@@ -1388,3 +1408,111 @@ else {
     }
 }
 })(this);
+
+(function($, undefined) {
+    'use strict';
+
+    // no jQuery or Zepto!
+    if($ === undefined) {
+        return;
+    }
+
+    /**
+     * bind dom events
+     * this overwrites addEventListener
+     * @param   {HTMLElement}   element
+     * @param   {String}        eventTypes
+     * @param   {Function}      handler
+     */
+    Hammer.event.bindDom = function(element, eventTypes, handler) {
+        $(element).on(eventTypes, function(ev) {
+            var data = ev.originalEvent || ev;
+
+            // IE pageX fix
+            if(data.pageX === undefined) {
+                data.pageX = ev.pageX;
+                data.pageY = ev.pageY;
+            }
+
+            // IE target fix
+            if(!data.target) {
+                data.target = ev.target;
+            }
+
+            // IE button fix
+            if(data.which === undefined) {
+                data.which = data.button;
+            }
+
+            // IE preventDefault
+            if(!data.preventDefault) {
+                data.preventDefault = ev.preventDefault;
+            }
+
+            // IE stopPropagation
+            if(!data.stopPropagation) {
+                data.stopPropagation = ev.stopPropagation;
+            }
+
+            handler.call(this, data);
+        });
+    };
+
+    /**
+     * the methods are called by the instance, but with the jquery plugin
+     * we use the jquery event methods instead.
+     * @this    {Hammer.Instance}
+     * @return  {jQuery}
+     */
+    Hammer.Instance.prototype.on = function(types, handler) {
+        return $(this.element).on(types, handler);
+    };
+    Hammer.Instance.prototype.off = function(types, handler) {
+        return $(this.element).off(types, handler);
+    };
+
+
+    /**
+     * trigger events
+     * this is called by the gestures to trigger an event like 'tap'
+     * @this    {Hammer.Instance}
+     * @param   {String}    gesture
+     * @param   {Object}    eventData
+     * @return  {jQuery}
+     */
+    Hammer.Instance.prototype.trigger = function(gesture, eventData){
+        var el = $(this.element);
+        if(el.has(eventData.target).length) {
+            el = $(eventData.target);
+        }
+
+        return el.trigger({
+            type: gesture,
+            gesture: eventData
+        });
+    };
+
+
+    /**
+     * jQuery plugin
+     * create instance of Hammer and watch for gestures,
+     * and when called again you can change the options
+     * @param   {Object}    [options={}]
+     * @return  {jQuery}
+     */
+    $.fn.hammer = function(options) {
+        return this.each(function() {
+            var el = $(this);
+            var inst = el.data('hammer');
+            // start new hammer instance
+            if(!inst) {
+                el.data('hammer', new Hammer(this, options || {}));
+            }
+            // change the options
+            else if(inst && options) {
+                Hammer.utils.extend(inst.options, options);
+            }
+        });
+    };
+
+})(window.jQuery || window.Zepto);
